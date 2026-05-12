@@ -11,7 +11,36 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const { type } = req.body;
+
   try {
+    // Генерация фото через Hugging Face
+    if (type === 'generate-image') {
+      const { prompt } = req.body;
+
+      const response = await fetch(
+        'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.HF_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ inputs: prompt }),
+        }
+      );
+
+      if (!response.ok) {
+        const err = await response.text();
+        return res.status(500).json({ error: err });
+      }
+
+      const buffer = await response.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString('base64');
+      return res.status(200).json({ image: `data:image/jpeg;base64,${base64}` });
+    }
+
+    // Обычный чат через Gemini
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -23,7 +52,8 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     return res.status(200).json(data);
+
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-        }
+}

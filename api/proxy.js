@@ -14,7 +14,6 @@ export default async function handler(req, res) {
   const { type } = req.body;
 
   try {
-    // Генерация фото через Hugging Face
     if (type === 'generate-image') {
       const { prompt } = req.body;
 
@@ -23,7 +22,7 @@ export default async function handler(req, res) {
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${process.env.HF_TOKEN}`,
+            'Authorization': 'Bearer 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',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ inputs: prompt }),
@@ -40,7 +39,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ image: `data:image/jpeg;base64,${base64}` });
     }
 
-    // Обычный чат через Gemini
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -56,4 +54,4 @@ export default async function handler(req, res) {
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-}
+        }

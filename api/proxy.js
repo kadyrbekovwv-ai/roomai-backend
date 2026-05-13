@@ -17,7 +17,8 @@ export default async function handler(req, res) {
     if (type === 'generate-image') {
       const { prompt } = req.body;
       const encoded = encodeURIComponent(prompt);
-      const imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=768&height=512&nologo=true`;
+      const seed = Math.floor(Math.random() * 1000000);
+      const imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=768&height=512&nologo=true&seed=${seed}`;
       return res.status(200).json({ image: imageUrl });
     }
 

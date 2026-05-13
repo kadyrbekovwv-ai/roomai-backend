@@ -1,7 +1,3 @@
-export const config = {
-  maxDuration: 60,
-};
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -20,27 +16,9 @@ export default async function handler(req, res) {
   try {
     if (type === 'generate-image') {
       const { prompt } = req.body;
-
-      const response = await fetch(
-        'https://api-inference.huggingface.co/models/stabilityai/sdxl-turbo',
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer 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',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ inputs: prompt }),
-        }
-      );
-
-      if (!response.ok) {
-        const err = await response.text();
-        return res.status(500).json({ error: err });
-      }
-
-      const buffer = await response.arrayBuffer();
-      const base64 = Buffer.from(buffer).toString('base64');
-      return res.status(200).json({ image: `data:image/jpeg;base64,${base64}` });
+      const encoded = encodeURIComponent(prompt);
+      const imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=768&height=512&nologo=true`;
+      return res.status(200).json({ image: imageUrl });
     }
 
     const response = await fetch(
